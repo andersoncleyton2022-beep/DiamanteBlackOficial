@@ -6,52 +6,83 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DiamanteBlack">
-    <title>DiamanteBlack - Download APK</title>
+    <meta name="theme-color" content="#0a001f">
+    <title>DiamanteBlack</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
         html, body {
             width: 100%;
             height: 100%;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0a001f 0%, #1a0033 100%);
             color: #ECEDEE;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            padding-top: max(20px, env(safe-area-inset-top));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-top: max(0px, env(safe-area-inset-top));
+            padding-bottom: max(0px, env(safe-area-inset-bottom));
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
         }
 
-        .container {
-            max-width: 500px;
-            width: 100%;
-            background: rgba(30, 32, 34, 0.98);
-            border: 1px solid #334155;
-            border-radius: 24px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 240, 255, 0.15);
-            animation: slideIn 0.5s ease-out;
+        .header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 0, 31, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            font-size: 28px;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00f0ff;
+            margin: 0;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: #9BA1A6;
+            margin: 2px 0 0 0;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -59,517 +90,289 @@
             }
         }
 
-        .logo {
-            font-size: 100px;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-            display: block;
+        .message.user {
+            justify-content: flex-end;
         }
 
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 1; 
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.8; 
-                transform: scale(1.08);
-            }
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 8px;
-            color: #00f0ff;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: #9BA1A6;
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            line-height: 1.4;
             font-size: 15px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            font-weight: 400;
         }
 
-        .warning {
-            background: rgba(245, 158, 11, 0.12);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 25px;
-            font-size: 13px;
-            color: #FBBF24;
-            text-align: left;
-            line-height: 1.6;
-        }
-
-        .warning strong {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .info-box {
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid rgba(0, 240, 255, 0.25);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        .info-box h3 {
-            color: #00f0ff;
-            font-size: 13px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 600;
-        }
-
-        .step {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 10px;
-            font-size: 13px;
+        .message.bot .message-bubble {
+            background: rgba(0, 240, 255, 0.12);
+            border: 1px solid rgba(0, 240, 255, 0.3);
             color: #ECEDEE;
-            line-height: 1.5;
         }
 
-        .step:last-child {
-            margin-bottom: 0;
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
+            color: #000;
+            font-weight: 500;
         }
 
-        .step-number {
-            color: #00f0ff;
-            font-weight: 700;
-            min-width: 24px;
+        .input-container {
+            padding: 12px 20px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 0, 31, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-box {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            background: rgba(30, 32, 34, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 8px 12px;
+            align-items: center;
+        }
+
+        input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #ECEDEE;
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: #687076;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.2s;
             flex-shrink: 0;
         }
 
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+        .send-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
         }
 
-        .btn {
-            display: block;
-            padding: 16px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
+        .welcome-message {
             text-align: center;
-            -webkit-appearance: none;
-            appearance: none;
-            -webkit-touch-callout: none;
-            touch-action: manipulation;
+            padding: 20px;
+            color: #9BA1A6;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
-            color: #000;
-            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.3);
+        .welcome-message .title {
+            font-size: 24px;
+            color: #00f0ff;
+            margin-bottom: 8px;
             font-weight: 700;
         }
 
-        .btn-primary:active {
-            transform: scale(0.96);
-            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.2);
+        .agents-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .btn-secondary {
-            background: rgba(0, 240, 255, 0.12);
-            color: #00f0ff;
-            border: 1.5px solid #00f0ff;
-            font-weight: 600;
-        }
-
-        .btn-secondary:active {
-            background: rgba(0, 240, 255, 0.2);
-            transform: scale(0.96);
-        }
-
-        .status {
+        .agent-item {
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
             font-size: 12px;
-            color: #9BA1A6;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            line-height: 1.8;
-        }
-
-        .status-item {
-            margin-bottom: 6px;
-        }
-
-        .status-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(30, 32, 34, 0.98);
-            border: 1px solid #334155;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #334155;
-        }
-
-        .modal-header h2 {
-            color: #00f0ff;
-            font-size: 20px;
-            margin: 0;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #9BA1A6;
-            font-size: 28px;
-            cursor: pointer;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-btn:active {
-            color: #00f0ff;
-        }
-
-        .instruction-list {
-            list-style: none;
-        }
-
-        .instruction-list li {
-            margin-bottom: 15px;
-            font-size: 14px;
-            line-height: 1.6;
             color: #ECEDEE;
         }
 
-        .instruction-list strong {
-            color: #00f0ff;
+        .agent-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
         }
 
-        .code-block {
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 3px solid #00f0ff;
-            padding: 12px;
-            margin: 12px 0;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
+        .agent-name {
             color: #00f0ff;
-            overflow-x: auto;
-        }
-
-        .github-link {
-            display: inline-block;
-            margin-top: 10px;
-            color: #00f0ff;
-            text-decoration: none;
-            font-size: 13px;
             font-weight: 600;
+            font-size: 11px;
         }
 
-        .github-link:active {
-            opacity: 0.7;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-                border-radius: 20px;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
-
-            .logo {
-                font-size: 80px;
-                margin-bottom: 15px;
-            }
-
-            .subtitle {
-                font-size: 14px;
-            }
-
-            .btn {
-                padding: 14px 20px;
-                font-size: 15px;
-            }
-
-            .modal-content {
-                padding: 20px;
-                border-radius: 16px;
-            }
-        }
-
-        /* Scrollbar customization */
         ::-webkit-scrollbar {
             width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
             background: rgba(0, 240, 255, 0.3);
-            border-radius: 10px;
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 240, 255, 0.5);
         }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header-title h1 {
+                font-size: 18px;
+            }
+
+            .chat-container {
+                padding: 12px 16px;
+            }
+
+            .message-bubble {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+
+            .input-container {
+                padding: 10px 16px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <span class="logo">💎</span>
-        <h1>DiamanteBlack</h1>
-        <p class="subtitle">Seu assistente de IA multi-agente ultra-leve para Android</p>
-
-        <div class="warning">
-            <strong>⚠️ Importante</strong>
-            Antes de instalar, ative "Instalar de fontes desconhecidas" nas configurações do seu celular.
-        </div>
-
-        <div class="info-box">
-            <h3>📋 Passos Rápidos</h3>
-            <div class="step">
-                <span class="step-number">1.</span>
-                <span>Clique em "Baixar APK" abaixo</span>
-            </div>
-            <div class="step">
-                <span class="step-number">2.</span>
-                <span>Aguarde o download completar (52 MB)</span>
-            </div>
-            <div class="step">
-                <span class="step-number">3.</span>
-                <span>Abra o arquivo nos Downloads</span>
-            </div>
-            <div class="step">
-                <span class="step-number">4.</span>
-                <span>Toque em "Instalar"</span>
-            </div>
-            <div class="step">
-                <span class="step-number">5.</span>
-                <span>Pronto! O app está instalado</span>
-            </div>
-        </div>
-
-        <div class="button-container">
-            <button class="btn btn-primary" onclick="showDownloadModal()">
-                📥 Baixar APK (52 MB)
-            </button>
-            <button class="btn btn-secondary" onclick="showInstructions()">
-                📖 Ver Instruções Completas
-            </button>
-        </div>
-
-        <div class="status">
-            <div class="status-item">✅ Versão: 1.0.0</div>
-            <div class="status-item">🔒 Totalmente offline após instalação</div>
-            <div class="status-item">⚡ Otimizado para Android 7.0+</div>
-            <div class="status-item">💾 Tamanho: 52 MB (APK) + 1.5 GB (modelos)</div>
+    <div class="header">
+        <div class="logo">💎</div>
+        <div class="header-title">
+            <h1>DiamanteBlack</h1>
+            <p>IA Multi-Agente Offline</p>
         </div>
     </div>
 
-    <div id="downloadModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📥 Baixar APK</h2>
-                <button class="close-btn" onclick="closeModal('downloadModal')">&times;</button>
-            </div>
-            <div style="color: #ECEDEE; line-height: 1.8; font-size: 14px;">
-                <p style="margin-bottom: 15px;">
-                    <strong style="color: #00f0ff;">Opção 1: Download Direto (Recomendado)</strong><br>
-                    Clique no botão abaixo para baixar o APK diretamente para seu celular:
-                </p>
-                <button class="btn btn-primary" onclick="downloadAPK()" style="margin-bottom: 20px;">
-                    ⬇️ Baixar diamanteblack.apk
-                </button>
+    <div class="chat-container" id="chatContainer">
+        <div class="message bot">
+            <div class="message-bubble">
+                <div class="welcome-message">
+                    <div class="title">Bem-vindo ao DiamanteBlack! 💎</div>
+                    <p>Seu assistente de IA multi-agente ultra-leve para Android.</p>
+                    
+                    <div class="agents-list">
+                        <div class="agent-item">
+                            <div class="agent-icon">🧠</div>
+                            <div class="agent-name">Qwen2</div>
+                            <div style="font-size: 10px; color: #9BA1A6;">Lógica</div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-icon">💻</div>
+                            <div class="agent-name">TinyLlama</div>
+                            <div style="font-size: 10px; color: #9BA1A6;">Código</div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-icon">✨</div>
+                            <div class="agent-name">SmolLM</div>
+                            <div style="font-size: 10px; color: #9BA1A6;">Síntese</div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-icon">🧬</div>
+                            <div class="agent-name">Phi-1.5</div>
+                            <div style="font-size: 10px; color: #9BA1A6;">Raciocínio</div>
+                        </div>
+                    </div>
 
-                <p style="margin-bottom: 15px; padding-top: 15px; border-top: 1px solid #334155;">
-                    <strong style="color: #00f0ff;">Opção 2: Pelo GitHub</strong><br>
-                    Se o download direto não funcionar, acesse:
-                </p>
-                <div class="code-block">
-                    github.com/andersoncleyton2022-beep/DiamanteBlackOficial
+                    <p style="margin-top: 12px; font-size: 12px;">Como posso ajudar?</p>
                 </div>
-                <p style="font-size: 12px; color: #9BA1A6;">
-                    Procure pela seção "Releases" e baixe o arquivo APK de lá.
-                </p>
             </div>
         </div>
     </div>
 
-    <div id="instructionsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📖 Instruções Completas</h2>
-                <button class="close-btn" onclick="closeModal('instructionsModal')">&times;</button>
-            </div>
-            <ul class="instruction-list">
-                <li>
-                    <strong>1. Preparar o Celular</strong><br>
-                    Vá em Configurações → Segurança → Ative "Instalar de fontes desconhecidas"
-                </li>
-                <li>
-                    <strong>2. Baixar o APK</strong><br>
-                    Clique no botão "Baixar APK" e aguarde completar
-                </li>
-                <li>
-                    <strong>3. Instalar</strong><br>
-                    Abra o Gerenciador de Arquivos → Downloads → diamanteblack.apk → Instalar
-                </li>
-                <li>
-                    <strong>4. Primeiro Uso</strong><br>
-                    Abra o app e vá em Configurações (⚙️) para baixar os modelos de IA
-                </li>
-                <li>
-                    <strong>5. Modelos Disponíveis</strong><br>
-                    • 🧠 Qwen2 (200 MB) - Lógica<br>
-                    • 💻 TinyLlama (500 MB) - Código<br>
-                    • ✨ SmolLM (100 MB) - Síntese<br>
-                    • 🧬 Phi-1.5 (800 MB) - Raciocínio
-                </li>
-                <li>
-                    <strong>6. Requisitos Mínimos</strong><br>
-                    • Android 7.0+<br>
-                    • 2GB RAM mínimo<br>
-                    • 2GB espaço livre<br>
-                    • Internet para baixar modelos
-                </li>
-            </ul>
+    <div class="input-container">
+        <div class="input-box">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Digite sua mensagem..." 
+                autocomplete="off"
+            >
         </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
 
     <script>
-        // Função para abrir modal de download
-        function showDownloadModal() {
-            document.getElementById('downloadModal').classList.add('active');
-        }
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
 
-        // Função para abrir modal de instruções
-        function showInstructions() {
-            document.getElementById('instructionsModal').classList.add('active');
-        }
+        // Simular respostas da IA
+        const responses = [
+            'Olá! Como posso ajudá-lo?',
+            'Essa é uma ótima pergunta! 🤔',
+            'Deixa eu pensar sobre isso...',
+            'Entendi! Vou analisar para você.',
+            'Que interessante! 💡',
+            'Claro, estou aqui para ajudar!',
+            'Ótimo! Vou processar sua solicitação.',
+            'Perfeito! Deixa comigo.'
+        ];
 
-        // Função para fechar modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        // Fechar modal ao clicar fora
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
-        });
-
-        // Função de download do APK
-        function downloadAPK() {
-            // Criar um link de download
-            const link = document.createElement('a');
-            link.href = 'https://github.com/andersoncleyton2022-beep/DiamanteBlackOficial/releases/download/v1.0.0/diamanteblack.apk';
-            link.download = 'diamanteblack.apk';
-            link.setAttribute('target', '_blank');
+        function sendMessage() {
+            const message = messageInput.value.trim();
             
-            // Adicionar ao DOM e clicar
-            document.body.appendChild(link);
-            link.click();
-            
-            // Remover do DOM
-            setTimeout(() => {
-                document.body.removeChild(link);
-            }, 100);
+            if (!message) return;
 
-            // Mostrar mensagem
+            // Adicionar mensagem do usuário
+            addMessage(message, 'user');
+            messageInput.value = '';
+
+            // Simular resposta da IA
             setTimeout(() => {
-                alert('✅ Download iniciado!\n\nProcure pelo arquivo "diamanteblack.apk" na pasta Downloads do seu celular.\n\nSe o download não começar, tente a Opção 2 (GitHub).');
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(randomResponse, 'bot');
             }, 500);
         }
 
-        // Verificar suporte a PWA
-        window.addEventListener('load', () => {
-            console.log('🚀 DiamanteBlack Download Page carregada com sucesso');
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
             
-            // Se estiver em um navegador que suporta PWA
-            if ('serviceWorker' in navigator) {
-                console.log('✅ Service Worker suportado');
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = text;
+            
+            messageDiv.appendChild(bubble);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll para o final
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Enviar ao pressionar Enter
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
             }
         });
 
-        // Prevenir zoom duplo
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-
-        // Fechar teclado ao enviar
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.target.blur();
-            }
+        // Focus no input ao carregar
+        window.addEventListener('load', () => {
+            messageInput.focus();
         });
     </script>
 </body>
