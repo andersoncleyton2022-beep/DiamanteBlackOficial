@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a001f">
@@ -12,6 +12,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
@@ -19,6 +20,7 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            position: fixed;
         }
 
         body {
@@ -165,6 +167,7 @@
         /* ===== CHAT ===== */
         .chat-screen {
             flex-direction: column;
+            height: 100%;
         }
 
         .header {
@@ -174,6 +177,7 @@
             padding: 12px 0;
             border-bottom: 1px solid rgba(0, 240, 255, 0.2);
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
 
         .header-title {
@@ -222,8 +226,8 @@
             transition: all 0.2s;
         }
 
-        .icon-btn:active {
-            background: rgba(0, 240, 255, 0.1);
+        .icon-btn:active, .icon-btn.active {
+            background: rgba(0, 240, 255, 0.2);
         }
 
         .chat-area {
@@ -234,6 +238,8 @@
             gap: 12px;
             padding: 10px 0;
             -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            min-height: 0;
         }
 
         .message {
@@ -347,6 +353,7 @@
             padding: 12px 0;
             border-top: 1px solid rgba(0, 240, 255, 0.2);
             align-items: flex-end;
+            flex-shrink: 0;
         }
 
         .input-box {
@@ -368,7 +375,7 @@
             font-size: 14px;
             outline: none;
             resize: none;
-            max-height: 100px;
+            max-height: 120px;
             font-family: inherit;
             min-height: 40px;
         }
@@ -634,12 +641,12 @@
 
         <div class="input-area">
             <button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Arquivo">📎</button>
-            <button class="icon-btn" onclick="iniciarVoz()" id="micBtn" title="Voz">🎤</button>
+            <button class="icon-btn" id="micBtn" title="Voz 🎤" onclick="iniciarVoz()">🎤</button>
             <div class="input-box">
                 <textarea id="msgInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); enviarMsg(); }"></textarea>
             </div>
             <button class="send-btn" onclick="enviarMsg()" title="Enviar">➤</button>
-            <input type="file" id="fileInput" multiple style="display:none;" onchange="processarArquivos()">
+            <input type="file" id="fileInput" multiple accept=".txt,.md,.json,.csv,.js,.html,.css" style="display:none;" onchange="processarArquivos()">
         </div>
     </div>
 
@@ -669,6 +676,7 @@
 
         env.allowLocalModels = false;
         env.useBrowserCache = true;
+        env.backend = 'webgl'; // Melhora performance no celular
 
         let model = null;
         let usuarios = {};
@@ -775,7 +783,7 @@
                 model = await pipeline('text-generation', 'Xenova/SmolLM-135M-Instruct', {
                     progress_callback: (p) => {
                         if (p.status === 'progress') {
-                            const percent = Math.round(p.progress);
+                            const percent = Math.round(p.progress * 100);
                             progressBar.style.width = percent + '%';
                             statusText.textContent = percent + '%';
                         }
@@ -788,7 +796,7 @@
                     }
                 });
             } catch (e) {
-                alert('Erro ao baixar: ' + e.message);
+                alert('Erro ao baixar: ' + e.message + '\n\nTente usar um celular mais novo ou conecte em uma rede melhor.');
                 btn.disabled = false;
                 btn.textContent = 'TENTAR NOVAMENTE';
                 statusText.textContent = 'Erro';
@@ -804,6 +812,7 @@
 
             adicionarMsg('user', texto);
             input.value = '';
+            input.style.height = 'auto';
 
             if (!model) {
                 adicionarMsg('bot', '⚠️ Modelo não carregado. Baixe nas configurações!');
@@ -814,7 +823,11 @@
             adicionarMsg('bot', '<div id="' + thinkId + '" class="thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Processando...</div>');
 
             try {
-                const resposta = await model(texto, { max_new_tokens: 150, temperature: 0.7 });
+                const resposta = await model(texto, { 
+                    max_new_tokens: 120, 
+                    temperature: 0.7,
+                    do_sample: true
+                });
                 const texto_gerado = resposta[0].generated_text.replace(texto, '').trim();
 
                 const thinkEl = document.getElementById(thinkId);
@@ -878,8 +891,16 @@
         // ===== VOZ =====
         window.iniciarVoz = () => {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const micBtn = document.getElementById('micBtn');
+            
             if (!Speech) {
-                alert('Voz não suportada neste navegador');
+                alert('❌ Voz não suportada neste navegador. Use Chrome ou Edge atualizado.');
+                return;
+            }
+
+            // Verifica se é HTTPS
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                alert('⚠️ Para usar a voz, abra esta página em um servidor seguro (HTTPS).');
                 return;
             }
 
@@ -888,9 +909,9 @@
             rec.continuous = false;
             rec.interimResults = false;
 
-            const micBtn = document.getElementById('micBtn');
             rec.onstart = () => {
-                micBtn.style.color = '#ff0000';
+                micBtn.classList.add('active');
+                micBtn.style.color = '#ff4444';
             };
 
             rec.onresult = (e) => {
@@ -899,11 +920,18 @@
             };
 
             rec.onend = () => {
+                micBtn.classList.remove('active');
                 micBtn.style.color = '';
             };
 
             rec.onerror = (e) => {
-                alert('Erro: ' + e.error);
+                micBtn.classList.remove('active');
+                micBtn.style.color = '';
+                if(e.error === 'not-allowed') {
+                    alert('Permissão de microfone negada!');
+                } else {
+                    alert('Erro: ' + e.error);
+                }
             };
 
             rec.start();
@@ -917,13 +945,27 @@
             adicionarMsg('bot', '📎 Processando ' + files.length + ' arquivo(s)...');
 
             for (let file of files) {
+                // Verifica tipo
+                if (!file.type && !file.name.match(/\.(txt|md|json|csv|js|html|css)$/i)) {
+                    adicionarMsg('bot', '❌ Arquivo "' + file.name + '" não é suportado. Envie apenas arquivos de texto.');
+                    continue;
+                }
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const conteudo = e.target.result.substring(0, 500);
-                    adicionarMsg('bot', '✅ Arquivo carregado: ' + file.name + '\n\n' + conteudo + '...');
+                    const conteudo = e.target.result.substring(0, 800);
+                    adicionarMsg('bot', '✅ Arquivo: <b>' + file.name + '</b>\n\n' + conteudo + (e.target.result.length > 800 ? '...' : ''));
                 };
-                reader.readAsText(file);
+                
+                reader.onerror = () => {
+                    adicionarMsg('bot', '❌ Erro ao ler: ' + file.name);
+                };
+                
+                reader.readAsText(file, 'UTF-8');
             }
+            
+            // Limpa o input para enviar o mesmo arquivo novamente se quiser
+            document.getElementById('fileInput').value = '';
         };
 
         // ===== CONFIG =====
@@ -955,6 +997,12 @@
                 adicionarMsg('bot', '💎 Bem-vindo de volta!');
                 atualizarStatus();
             }
+        });
+        
+        // Ajusta rolagem quando teclado abre
+        window.addEventListener('resize', () => {
+            const chat = document.getElementById('chatArea');
+            if (chat) chat.scrollTop = chat.scrollHeight;
         });
     </script>
 </body>
