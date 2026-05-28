@@ -1,379 +1,383 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="DiamanteBlack">
-    <meta name="theme-color" content="#0a001f">
-    <title>DiamanteBlack</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiamanteBlack 💎 - Ultra-Light AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: radial-gradient(circle at center, #1a0033, #000000); 
+      color: white; height: 100vh; overflow: hidden; 
+    }
+    
+    /* UI Screens */
+    .screen { height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .card { 
+      background: rgba(20, 0, 40, 0.97); padding: 35px; border-radius: 25px; 
+      border: 2px solid #00f0ff; box-shadow: 0 0 80px rgba(0, 240, 255, 0.3); 
+      max-width: 400px; width: 90%; text-align: center; 
+    }
+    
+    h1 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; background: linear-gradient(90deg, #00f0ff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+    
+    input, textarea { 
+      width: 100%; padding: 14px; margin: 8px 0; 
+      background: #1a0033; border: 1px solid #00f0ff; 
+      border-radius: 12px; color: white; font-family: 'Inter', sans-serif; 
+    }
+    
+    button { 
+      padding: 14px; margin: 8px 0; width: 100%; 
+      background: #00f0ff; color: black; border: none; 
+      border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; 
+    }
+    button:hover { background: #00d4dd; transform: translateY(-2px); }
+    button.secondary { background: #333; color: white; }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+    /* Chat Interface */
+    .chat-screen { display: none; flex-direction: column; height: 100vh; }
+    .header { 
+      padding: 12px 20px; background: rgba(10, 0, 30, 0.98); 
+      display: flex; justify-content: space-between; align-items: center; 
+      border-bottom: 1px solid #00f0ff; 
+    }
+    .status-group { display: flex; gap: 10px; font-size: 10px; overflow-x: auto; padding: 5px 0; }
+    .agent-pill { 
+      display: flex; align-items: center; gap: 4px; padding: 4px 8px; 
+      background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid #333; white-space: nowrap;
+    }
+    .agent-pill.ready { border-color: #00ff00; color: #00ff00; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0a001f 0%, #1a0033 100%);
-            color: #ECEDEE;
-            display: flex;
-            flex-direction: column;
-            padding-top: max(0px, env(safe-area-inset-top));
-            padding-bottom: max(0px, env(safe-area-inset-bottom));
-            padding-left: max(0px, env(safe-area-inset-left));
-            padding-right: max(0px, env(safe-area-inset-right));
-        }
+    .chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; background: #0a001f; }
+    .mensagem { padding: 15px; border-radius: 18px; max-width: 85%; line-height: 1.5; position: relative; }
+    .bot { background: rgba(40, 0, 80, 0.4); border: 1px solid #00f0ff; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .user { background: #00f0ff; color: black; align-self: flex-end; border-bottom-right-radius: 4px; }
+    
+    .msg-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; opacity: 0.7; }
+    .action-btn { background: none; border: 1px solid #555; color: #aaa; padding: 3px 8px; border-radius: 6px; font-size: 10px; width: auto; margin: 0; }
+    .action-btn:hover { border-color: #00f0ff; color: #00f0ff; }
+    .agent-tag { font-size: 9px; font-weight: bold; text-transform: uppercase; color: #00f0ff; }
 
-        .header {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(10, 0, 31, 0.5);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    .input-area { padding: 15px; background: #0a001f; display: flex; gap: 8px; border-top: 1px solid #333; align-items: flex-end; }
+    .input-area textarea { margin: 0; min-height: 45px; max-height: 150px; }
+    .input-area button { width: 45px; height: 45px; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-        .logo {
-            font-size: 28px;
-        }
+    /* Modal Config */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: #150025; padding: 25px; border-radius: 20px; border: 1px solid #00f0ff; width: 95%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
+    .model-row { background: #1a0033; padding: 12px; border-radius: 12px; margin: 10px 0; border: 1px solid #333; }
+    .progress-bar { height: 4px; background: #333; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .progress-val { height: 100%; background: #00f0ff; width: 0%; transition: 0.3s; }
 
-        .header-title {
-            flex: 1;
-        }
-
-        .header-title h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #00f0ff;
-            margin: 0;
-        }
-
-        .header-title p {
-            font-size: 12px;
-            color: #9BA1A6;
-            margin: 2px 0 0 0;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            display: flex;
-            gap: 8px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 16px;
-            word-wrap: break-word;
-            line-height: 1.4;
-            font-size: 15px;
-        }
-
-        .message.bot .message-bubble {
-            background: rgba(0, 240, 255, 0.12);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            color: #ECEDEE;
-        }
-
-        .message.user .message-bubble {
-            background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
-            color: #000;
-            font-weight: 500;
-        }
-
-        .input-container {
-            padding: 12px 20px;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(10, 0, 31, 0.5);
-            backdrop-filter: blur(10px);
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
-        }
-
-        .input-box {
-            flex: 1;
-            display: flex;
-            gap: 8px;
-            background: rgba(30, 32, 34, 0.8);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 12px;
-            padding: 8px 12px;
-            align-items: center;
-        }
-
-        input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #ECEDEE;
-            font-size: 15px;
-            outline: none;
-            font-family: inherit;
-        }
-
-        input::placeholder {
-            color: #687076;
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            width: 40px;
-            height: 40px;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-            opacity: 0.8;
-        }
-
-        .welcome-message {
-            text-align: center;
-            padding: 20px;
-            color: #9BA1A6;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .welcome-message .title {
-            font-size: 24px;
-            color: #00f0ff;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        .agents-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .agent-item {
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            font-size: 12px;
-            color: #ECEDEE;
-        }
-
-        .agent-icon {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .agent-name {
-            color: #00f0ff;
-            font-weight: 600;
-            font-size: 11px;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 240, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 240, 255, 0.5);
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                padding: 12px 16px;
-            }
-
-            .header-title h1 {
-                font-size: 18px;
-            }
-
-            .chat-container {
-                padding: 12px 16px;
-            }
-
-            .message-bubble {
-                font-size: 14px;
-                padding: 10px 14px;
-            }
-
-            .input-container {
-                padding: 10px 16px;
-            }
-        }
-    </style>
+    .thinking { font-style: italic; color: #888; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+    .dot-pulse { width: 6px; height: 6px; background: #00f0ff; border-radius: 50%; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+  </style>
 </head>
 <body>
+
+  <!-- Login -->
+  <div class="screen" id="loginScreen" style="display: flex;">
+    <div class="card">
+      <h1>DiamanteBlack 💎</h1>
+      <p style="color: #00f0ff; margin-bottom: 20px;">IA Ultra-Leve & Multi-Agente</p>
+      <input type="email" id="loginEmail" placeholder="Email" value="user@diamante.ai">
+      <input type="password" id="loginSenha" placeholder="Senha" value="123456">
+      <button onclick="fazerLogin()">ENTRAR NO SISTEMA</button>
+      <p style="font-size: 10px; color: #555; margin-top: 10px;">Modelos otimizados para Celular</p>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-screen" id="chatScreen">
     <div class="header">
-        <div class="logo">💎</div>
-        <div class="header-title">
-            <h1>DiamanteBlack</h1>
-            <p>IA Multi-Agente Offline</p>
-        </div>
+      <h2 style="font-size: 16px;">DiamanteBlack 💎</h2>
+      <div class="status-group" id="statusGroup">
+        <div class="agent-pill" id="p-logica">Qwen2</div>
+        <div class="agent-pill" id="p-codigo">TinyLlama</div>
+        <div class="agent-pill" id="p-sintese">SmolLM</div>
+        <div class="agent-pill" id="p-raciocinio">Phi-1.5</div>
+      </div>
+      <button onclick="abrirConfig()" style="width:35px; padding:5px; margin:0; background:transparent; border:1px solid #333;">⚙️</button>
     </div>
 
-    <div class="chat-container" id="chatContainer">
-        <div class="message bot">
-            <div class="message-bubble">
-                <div class="welcome-message">
-                    <div class="title">Bem-vindo ao DiamanteBlack! 💎</div>
-                    <p>Seu assistente de IA multi-agente ultra-leve para Android.</p>
-                    
-                    <div class="agents-list">
-                        <div class="agent-item">
-                            <div class="agent-icon">🧠</div>
-                            <div class="agent-name">Qwen2</div>
-                            <div style="font-size: 10px; color: #9BA1A6;">Lógica</div>
-                        </div>
-                        <div class="agent-item">
-                            <div class="agent-icon">💻</div>
-                            <div class="agent-name">TinyLlama</div>
-                            <div style="font-size: 10px; color: #9BA1A6;">Código</div>
-                        </div>
-                        <div class="agent-item">
-                            <div class="agent-icon">✨</div>
-                            <div class="agent-name">SmolLM</div>
-                            <div style="font-size: 10px; color: #9BA1A6;">Síntese</div>
-                        </div>
-                        <div class="agent-item">
-                            <div class="agent-icon">🧬</div>
-                            <div class="agent-name">Phi-1.5</div>
-                            <div style="font-size: 10px; color: #9BA1A6;">Raciocínio</div>
-                        </div>
-                    </div>
+    <div class="chat-area" id="chatArea"></div>
 
-                    <p style="margin-top: 12px; font-size: 12px;">Como posso ajudar?</p>
-                </div>
-            </div>
-        </div>
+    <div class="input-area">
+      <button onclick="document.getElementById('fileIn').click()" title="Arquivos">📎</button>
+      <button onclick="iniciarVoz()" id="micBtn" title="Voz">🎤</button>
+      <textarea id="msgInput" placeholder="Mensagem..."></textarea>
+      <button onclick="enviar()">➤</button>
+      <input type="file" id="fileIn" multiple style="display:none;" onchange="uploadArquivos()">
     </div>
+  </div>
 
-    <div class="input-container">
-        <div class="input-box">
-            <input 
-                type="text" 
-                id="messageInput" 
-                placeholder="Digite sua mensagem..." 
-                autocomplete="off"
-            >
+  <!-- Configurações -->
+  <div class="modal" id="modalConfig">
+    <div class="modal-content">
+      <h2 style="color: #00f0ff; margin-bottom: 15px;">⚙️ Gerenciar IA</h2>
+      
+      <div class="model-row">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>🧠 <b>Lógica</b> (Qwen2-0.5B)</span>
+          <span id="l-logica">Pendente</span>
         </div>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+        <div class="progress-bar"><div class="progress-val" id="b-logica"></div></div>
+        <button class="secondary" style="padding:5px; font-size:10px; margin-top:8px;" onclick="baixar('logica')">BAIXAR</button>
+      </div>
+
+      <div class="model-row">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>💻 <b>Código</b> (TinyLlama-1.1B)</span>
+          <span id="l-codigo">Pendente</span>
+        </div>
+        <div class="progress-bar"><div class="progress-val" id="b-codigo"></div></div>
+        <button class="secondary" style="padding:5px; font-size:10px; margin-top:8px;" onclick="baixar('codigo')">BAIXAR</button>
+      </div>
+
+      <div class="model-row">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>✨ <b>Síntese</b> (SmolLM-135M)</span>
+          <span id="l-sintese">Pendente</span>
+        </div>
+        <div class="progress-bar"><div class="progress-val" id="b-sintese"></div></div>
+        <button class="secondary" style="padding:5px; font-size:10px; margin-top:8px;" onclick="baixar('sintese')">BAIXAR</button>
+      </div>
+
+      <div class="model-row">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>🧬 <b>Raciocínio</b> (Phi-1.5)</span>
+          <span id="l-raciocinio">Pendente</span>
+        </div>
+        <div class="progress-bar"><div class="progress-val" id="b-raciocinio"></div></div>
+        <button class="secondary" style="padding:5px; font-size:10px; margin-top:8px;" onclick="baixar('raciocinio')">BAIXAR</button>
+      </div>
+
+      <button onclick="limparChat()" style="background:#ff4444; color:white; margin-top:10px;">🗑️ LIMPAR CONVERSA</button>
+      <button onclick="fecharConfig()" style="margin-top:10px;">FECHAR</button>
     </div>
+  </div>
 
-    <script>
-        const chatContainer = document.getElementById('chatContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
+  <script type="module">
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+    
+    env.allowLocalModels = false;
+    env.useBrowserCache = true;
 
-        // Simular respostas da IA
-        const responses = [
-            'Olá! Como posso ajudá-lo?',
-            'Essa é uma ótima pergunta! 🤔',
-            'Deixa eu pensar sobre isso...',
-            'Entendi! Vou analisar para você.',
-            'Que interessante! 💡',
-            'Claro, estou aqui para ajudar!',
-            'Ótimo! Vou processar sua solicitação.',
-            'Perfeito! Deixa comigo.'
-        ];
+    const AGENTES = {
+      logica: { id: 'Xenova/Qwen2-0.5B-Instruct', instance: null, name: 'Qwen2' },
+      codigo: { id: 'Xenova/TinyLlama-1.1B-Chat-v1.0', instance: null, name: 'TinyLlama' },
+      sintese: { id: 'Xenova/SmolLM-135M-Instruct', instance: null, name: 'SmolLM' },
+      raciocinio: { id: 'Xenova/phi-1_5', instance: null, name: 'Phi-1.5' }
+    };
 
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            
-            if (!message) return;
+    let db = null;
+    let currentUser = "admin";
 
-            // Adicionar mensagem do usuário
-            addMessage(message, 'user');
-            messageInput.value = '';
+    // ============== INICIALIZAÇÃO ==============
+    window.fazerLogin = async () => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('chatScreen').style.display = 'flex';
+      await initDB();
+      addMsg('bot', 'logica', '💎 **DiamanteBlack Online.**\n\nConfigure seus agentes nas configurações (⚙️). Os modelos são ultra-leves e funcionam bem em celulares!');
+    };
 
-            // Simular resposta da IA
-            setTimeout(() => {
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                addMessage(randomResponse, 'bot');
-            }, 500);
-        }
+    window.abrirConfig = () => document.getElementById('modalConfig').classList.add('active');
+    window.fecharConfig = () => document.getElementById('modalConfig').classList.remove('active');
+    window.limparChat = () => { if(confirm('Limpar conversa?')) { document.getElementById('chatArea').innerHTML = ''; fecharConfig(); } };
 
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'message-bubble';
-            bubble.textContent = text;
-            
-            messageDiv.appendChild(bubble);
-            chatContainer.appendChild(messageDiv);
-            
-            // Scroll para o final
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+    // ============== DOWNLOAD DE MODELOS ==============
+    window.baixar = async (tipo) => {
+      const a = AGENTES[tipo];
+      const label = document.getElementById(`l-${tipo}`);
+      const bar = document.getElementById(`b-${tipo}`);
+      const pill = document.getElementById(`p-${tipo}`);
 
-        // Enviar ao pressionar Enter
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+      label.textContent = 'Baixando...';
+      try {
+        a.instance = await pipeline('text-generation', a.id, {
+          progress_callback: (p) => {
+            if (p.status === 'progress') {
+              bar.style.width = p.progress + '%';
+              label.textContent = Math.round(p.progress) + '%';
             }
+            if (p.status === 'ready') {
+              label.textContent = 'PRONTO';
+              bar.style.width = '100%';
+              pill.classList.add('ready');
+            }
+          }
         });
+      } catch (e) { label.textContent = 'Erro!'; console.error(e); }
+    };
 
-        // Focus no input ao carregar
-        window.addEventListener('load', () => {
-            messageInput.focus();
-        });
-    </script>
+    // ============== CHAT & AGENTES ==============
+    window.enviar = async () => {
+      const input = document.getElementById('msgInput');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      addMsg('user', null, texto);
+      input.value = '';
+
+      const thinkDiv = createThinking();
+      const statusText = thinkDiv.querySelector('.thinking-status');
+
+      try {
+        let context = await buscarContexto(texto);
+        let prompt = texto;
+        if (context) prompt = `Contexto: ${context}\n\nPergunta: ${texto}`;
+
+        let resp = "";
+        let agentePrincipal = "logica";
+
+        // Lógica de Orquestração
+        if (texto.toLowerCase().match(/código|html|js|python|script/)) {
+          statusText.textContent = "💻 TinyLlama gerando código...";
+          resp = await gerar('codigo', prompt);
+          agentePrincipal = "codigo";
+        } else if (texto.length > 100 || texto.toLowerCase().includes('explique')) {
+          statusText.textContent = "🧬 Phi-1.5 raciocinando...";
+          resp = await gerar('raciocinio', prompt);
+          agentePrincipal = "raciocinio";
+        } else {
+          statusText.textContent = "🧠 Qwen2 processando...";
+          resp = await gerar('logica', prompt);
+        }
+
+        // Refinamento com SmolLM
+        if (AGENTES.sintese.instance && resp.length > 10) {
+          statusText.textContent = "✨ SmolLM refinando...";
+          const refinado = await gerar('sintese', `Melhore este texto: ${resp}`);
+          if (refinado.length > 5) resp = refinado;
+        }
+
+        thinkDiv.remove();
+        addMsg('bot', agentePrincipal, resp);
+      } catch (e) {
+        thinkDiv.remove();
+        addMsg('bot', 'logica', "❌ Erro: " + e.message);
+      }
+    };
+
+    async function gerar(tipo, p) {
+      const model = AGENTES[tipo].instance;
+      if (!model) return `⚠️ Agente ${AGENTES[tipo].name} não carregado.`;
+      const out = await model(p, { max_new_tokens: 120, temperature: 0.7, do_sample: true });
+      return out[0].generated_text.replace(p, "").trim();
+    }
+
+    // ============== ARQUIVOS & RAG ==============
+    window.uploadArquivos = async () => {
+      const files = document.getElementById('fileIn').files;
+      addMsg('bot', 'logica', `📤 Processando ${files.length} arquivos...`);
+      for (let f of files) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          await salvarDB({ nome: f.name, conteudo: e.target.result });
+        };
+        reader.readAsText(f);
+      }
+      setTimeout(() => addMsg('bot', 'logica', "✅ Arquivos indexados na memória RAG."), 1000);
+    };
+
+    // ============== VOZ ==============
+    window.iniciarVoz = () => {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Speech) return alert("Voz não suportada.");
+      const rec = new Speech();
+      rec.lang = 'pt-BR';
+      rec.onstart = () => document.getElementById('micBtn').style.color = '#ff0000';
+      rec.onresult = (e) => document.getElementById('msgInput').value = e.results[0][0].transcript;
+      rec.onend = () => document.getElementById('micBtn').style.color = '';
+      rec.start();
+    };
+
+    window.ouvir = (btn) => {
+      const txt = btn.closest('.mensagem').querySelector('.txt-body').innerText;
+      window.speechSynthesis.cancel();
+      const ut = new SpeechSynthesisUtterance(txt);
+      ut.lang = 'pt-BR';
+      window.speechSynthesis.speak(ut);
+    };
+
+    window.copiar = (btn) => {
+      const txt = btn.closest('.mensagem').querySelector('.txt-body').innerText;
+      navigator.clipboard.writeText(txt);
+      btn.textContent = 'COPIADO!';
+      setTimeout(() => btn.textContent = 'COPIAR', 2000);
+    };
+
+    // ============== HELPERS ==============
+    function addMsg(tipo, agente, texto) {
+      const chat = document.getElementById('chatArea');
+      const div = document.createElement('div');
+      div.className = `mensagem ${tipo}`;
+      
+      let html = "";
+      if (agente) html += `<div class="agent-tag">🤖 Agente ${AGENTES[agente].name}</div>`;
+      html += `<div class="txt-body">${texto.replace(/\n/g, '<br>')}</div>`;
+      
+      if (tipo === 'bot') {
+        html += `
+          <div class="msg-footer">
+            <button class="action-btn" onclick="copiar(this)">COPIAR</button>
+            <button class="action-btn" onclick="ouvir(this)">OUVIR</button>
+          </div>
+        `;
+      }
+      
+      div.innerHTML = html;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function createThinking() {
+      const chat = document.getElementById('chatArea');
+      const div = document.createElement('div');
+      div.className = 'mensagem bot';
+      div.innerHTML = `<div class="thinking"><div class="dot-pulse"></div> <span class="thinking-status">Agentes colaborando...</span></div>`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    // ============== DB (INDEXEDDB) ==============
+    function initDB() {
+      return new Promise(res => {
+        const req = indexedDB.open("DiamanteRAG", 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore("files", { keyPath: "id", autoIncrement: true });
+        req.onsuccess = e => { db = e.target.result; res(); };
+      });
+    }
+    function salvarDB(item) {
+      const tx = db.transaction("files", "readwrite");
+      tx.objectStore("files").add(item);
+    }
+    async function buscarContexto(txt) {
+      return new Promise(res => {
+        if (!db) return res("");
+        const store = db.transaction("files").objectStore("files");
+        store.getAll().onsuccess = e => {
+          const files = e.target.result;
+          const found = files.filter(f => f.conteudo.toLowerCase().includes(txt.toLowerCase().split(' ')[0]));
+          res(found.length > 0 ? found[0].conteudo.substring(0, 500) : "");
+        };
+      });
+    }
+
+    // Auto-resize
+    document.getElementById('msgInput').addEventListener('input', function() {
+      this.style.height = '45px';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+  </script>
 </body>
 </html>
