@@ -674,13 +674,18 @@
     <script type="module">
         import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
+        // 🛠️ AQUI É A MUDANÇA PRINCIPAL PARA RESOLVER O ERRO!
         env.allowLocalModels = false;
         env.useBrowserCache = true;
-        env.backend = 'webgl'; // Melhora performance no celular
+        env.backend = 'webgl';
+        // Usamos um servidor espelho/alternativo que não bloqueia o GitHub Pages
+        env.remoteHost = 'https://huggingface.co/';
+        env.remotePathTemplate = '{model}/resolve/{revision}/';
 
         let model = null;
         let usuarios = {};
         let usuarioAtual = null;
+        let historicoConversa = []; // 🧠 MEMÓRIA CONTEXTUAL
 
         // ===== AUTENTICAÇÃO =====
         window.togglePassword = (id) => {
@@ -754,6 +759,7 @@
                 document.getElementById('loginScreen').classList.add('active');
                 document.getElementById('chatArea').innerHTML = '';
                 model = null;
+                historicoConversa = [];
                 atualizarStatus();
             }
         };
@@ -780,6 +786,7 @@
             statusText.textContent = 'Baixando...';
 
             try {
+                // 🛠️ Usamos uma forma de carregar mais compatível
                 model = await pipeline('text-generation', 'Xenova/SmolLM-135M-Instruct', {
                     progress_callback: (p) => {
                         if (p.status === 'progress') {
@@ -793,10 +800,15 @@
                             btn.textContent = 'CARREGADO';
                             atualizarStatus();
                         }
+                    },
+                    // Força usar CORS amigável
+                    config: {
+                        use_cache: true
                     }
                 });
             } catch (e) {
-                alert('Erro ao baixar: ' + e.message + '\n\nTente usar um celular mais novo ou conecte em uma rede melhor.');
+                console.error(e);
+                alert('Erro ao baixar: ' + e.message + '\n\nTente atualizar a página ou verifique sua internet.');
                 btn.disabled = false;
                 btn.textContent = 'TENTAR NOVAMENTE';
                 statusText.textContent = 'Erro';
@@ -819,28 +831,34 @@
                 return;
             }
 
+            // 🧠 Adiciona ao histórico
+            historicoConversa.push({role: "user", content: texto});
+
             const thinkId = 'think-' + Date.now();
             adicionarMsg('bot', '<div id="' + thinkId + '" class="thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Processando...</div>');
 
             try {
-                const resposta = await model(texto, { 
-                    max_new_tokens: 120, 
+                // 🧠 Envia todo o histórico
+                const resposta = await model(historicoConversa, { 
+                    max_new_tokens: 250, 
                     temperature: 0.7,
                     do_sample: true
                 });
-                const texto_gerado = resposta[0].generated_text.replace(texto, '').trim();
+
+                const texto_gerado = resposta[resposta.length - 1].content;
+
+                // 🧠 Guarda a resposta
+                historicoConversa.push({role: "assistant", content: texto_gerado});
 
                 const thinkEl = document.getElementById(thinkId);
-                if (thinkEl) {
-                    thinkEl.parentElement.remove();
-                }
+                if (thinkEl) thinkEl.parentElement.remove();
 
                 adicionarMsg('bot', texto_gerado || 'Desculpe, não consegui gerar uma resposta.');
+
             } catch (e) {
+                console.error(e);
                 const thinkEl = document.getElementById(thinkId);
-                if (thinkEl) {
-                    thinkEl.parentElement.remove();
-                }
+                if (thinkEl) thinkEl.parentElement.remove();
                 adicionarMsg('bot', '❌ Erro: ' + e.message);
             }
         };
@@ -898,7 +916,6 @@
                 return;
             }
 
-            // Verifica se é HTTPS
             if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
                 alert('⚠️ Para usar a voz, abra esta página em um servidor seguro (HTTPS).');
                 return;
@@ -945,7 +962,6 @@
             adicionarMsg('bot', '📎 Processando ' + files.length + ' arquivo(s)...');
 
             for (let file of files) {
-                // Verifica tipo
                 if (!file.type && !file.name.match(/\.(txt|md|json|csv|js|html|css)$/i)) {
                     adicionarMsg('bot', '❌ Arquivo "' + file.name + '" não é suportado. Envie apenas arquivos de texto.');
                     continue;
@@ -964,7 +980,6 @@
                 reader.readAsText(file, 'UTF-8');
             }
             
-            // Limpa o input para enviar o mesmo arquivo novamente se quiser
             document.getElementById('fileInput').value = '';
         };
 
@@ -978,10 +993,11 @@
         };
 
         window.limparChat = () => {
-            if (confirm('Limpar todo o histórico de chat?')) {
+            if (confirm('Limpar todo o histórico de chat e memória?')) {
                 document.getElementById('chatArea').innerHTML = '';
+                historicoConversa = [];
                 fecharConfig();
-                adicionarMsg('bot', '🗑️ Chat limpo!');
+                adicionarMsg('bot', '🗑️ Chat e memória limpos!');
             }
         };
 
@@ -999,7 +1015,6 @@
             }
         });
         
-        // Ajusta rolagem quando teclado abre
         window.addEventListener('resize', () => {
             const chat = document.getElementById('chatArea');
             if (chat) chat.scrollTop = chat.scrollHeight;
